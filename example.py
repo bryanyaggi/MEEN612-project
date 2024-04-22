@@ -13,7 +13,13 @@ def run():
     env.launch(realtime=True)
 
     robot = rtb.models.Panda()
+    #robot = rtb.models.DH.Panda()
     robot.q = robot.qr # pre-defined 'ready' configuration
+    print(type(robot.q))
+
+    # Test dynamics
+    #M = robot.inertia(robot.q)
+    #print(M)
 
     Tep = robot.fkine(robot.q) * sm.SE3.Trans(0.2, 0.2, 0.45) # target end effector pose
     axes = sg.Axes(length=0.1, pose=Tep)

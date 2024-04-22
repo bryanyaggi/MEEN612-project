@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  rtb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rtb:latest
+    user: user
+    environment:
+      - DISPLAY
+      - XAUTHORITY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /home/yaggi/.Xauthority:/home/user/.Xauthority
+      - .:/home/user/project
+    working_dir: /home/user/project
+    privileged: true
+    network_mode: host
+    ipc: host
+    command: ["bash"]
