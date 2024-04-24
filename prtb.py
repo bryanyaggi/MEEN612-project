@@ -2,7 +2,7 @@
 
 import math
 import numpy as np
-import sympy as sym
+#import sympy as sym
 import roboticstoolbox as rtb
 import spatialmath as sm
 import spatialgeometry as sg
