@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
 
-import pybullet as p
-import time
-import pybullet_data
 import math
 import numpy as np
+import pybullet as p
+import pybullet_data
+import roboticstoolbox as rtb
+import time
 
 SIM_FREQUENCY = 240 # Hz
 
@@ -102,7 +103,6 @@ class Robot:
         if targetJoint is None and targetCartesian is not None:
             targetJoint = p.calculateInverseKinematics(self.id, self.n - 1, targetCartesian)
 
-        errorPrev = 0
         achieved = False
         while not achieved:
             qC, qdC = self.getJointStates()
@@ -112,13 +112,36 @@ class Robot:
             # gravity terms
             torque = M @ (Kv @ -qdC + Kp @ error) + N
             p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
-            errorPrev = error
             print(error)
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
-    def computedTorqueTrajectoryFollower(self, trajectory, Cartesian=False):
-        pass
+        p.disconnect()
+
+    def computedTorqueTrajectoryFollower(self, trajectoryJoint=None, trajectoryCartesian=None):
+        '''
+        '''
+        p.connect(p.GUI)
+        configureEnvironment()
+        self.loadRobot()
+        self.setInitialConfiguration()
+        
+        Kp = 100 * np.eye(self.n)
+        Kv = 2 * np.sqrt(Kp) # critical damping
+
+        for i in range(len(trajectoryJoint)):
+            qC, qdC = self.getJointStates()
+            e = trajectoryJoint.s[i] - qC
+            ed = trajectoryJoint.sd[i] - qdC
+            M = np.array(p.calculateMassMatrix(self.id, list(qC)))
+            N = np.array(p.calculateInverseDynamics(self.id, list(qC), list(qdC), [0.] * self.n)) # sum of Coriolis and
+            # gravity terms
+            torque = M @ (trajectoryJoint.sdd[i] + Kv @ ed + Kp @ e) + N
+            p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
+            p.stepSimulation()
+            time.sleep(1 / SIM_FREQUENCY)
+
+        p.disconnect()
 
 def flopDown():
     robot = Robot()
@@ -139,8 +162,20 @@ def computedTorquePositionRegulator():
     #robot.computedTorquePositionRegulator(targetJoint=np.ones(7) * angle)
     robot.computedTorquePositionRegulator(targetCartesian=(1.0, 1.0, 1.0))
 
+def computedTorqueTrajectoryFollower():
+    robot = Robot()
+    initialAngle = 10 * math.pi / 180
+    finalAngle = 45 * math.pi / 180
+    q0 = np.ones(7) * initialAngle
+    qf = np.ones(7) * finalAngle
+    duration = 10
+    t = np.linspace(0, duration, duration * SIM_FREQUENCY)
+    trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
+    robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
+
 if __name__ == '__main__':
     #flopDown()
     #flopUp()
     #pidPositionRegulator()
-    computedTorquePositionRegulator()
+    #computedTorquePositionRegulator()
+    computedTorqueTrajectoryFollower()
