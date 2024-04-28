@@ -5,6 +5,7 @@ import numpy as np
 import pybullet as p
 import pybullet_data
 import roboticstoolbox as rtb
+from spatialmath import SE3
 import time
 
 SIM_FREQUENCY = 240 # Hz
@@ -129,10 +130,28 @@ class Robot:
         Kp = 100 * np.eye(self.n)
         Kv = 2 * np.sqrt(Kp) # critical damping
 
-        for i in range(len(trajectoryJoint)):
+        if trajectoryJoint is None and trajectoryCartesian is not None:
+            cartesian = True
+            steps = len(trajectoryJoint)
+        else:
+            cartesian = False
+            steps = len(trajectoryCartesian)
+
+        for i in range(steps):
             qC, qdC = self.getJointStates()
-            e = trajectoryJoint.s[i] - qC
-            ed = trajectoryJoint.sd[i] - qdC
+            if not cartesian:
+                e = trajectoryJoint.s[i] - qC
+                ed = trajectoryJoint.sd[i] - qdC
+            else:
+                qT = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i][:3, 3],
+                        trajectoryCartesian[i])
+                if i == 0:
+                    # use forward difference
+                elif i == steps - 1:
+                    # use backward difference
+                else:
+                    # use center difference
+
             M = np.array(p.calculateMassMatrix(self.id, list(qC)))
             N = np.array(p.calculateInverseDynamics(self.id, list(qC), list(qdC), [0.] * self.n)) # sum of Coriolis and
             # gravity terms
@@ -173,9 +192,30 @@ def computedTorqueTrajectoryFollower():
     trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
     robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
 
+def computedTorqueTrajectoryFollowerC():
+    T0 = np.eye(4)
+    T0[:3, 3] = [-1, 0, 1]
+    R = np.array([
+        [0, 0, -1],
+        [0, 1, 0],
+        [1, 0, 0]])
+    T0[:3, :3] = R
+    print(T0)
+    Tf = np.eye(4)
+    Tf[:3, 3] = [1, 0, 1]
+    Tf[:3, :3] = R
+    T0 = SE3(-1, 0, 1) * SE3.Rx(math.pi)
+    Tf = SE3(1, 0, 1) * SE3.Rx(math.pi)
+    print(T0)
+    duration = 10
+    t = np.linspace(0, duration, duration * SIM_FREQUENCY)
+    trajectory = rtb.tools.trajectory.ctraj(T0, Tf, t)
+    robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory)
+
 if __name__ == '__main__':
     #flopDown()
     #flopUp()
     #pidPositionRegulator()
     #computedTorquePositionRegulator()
-    computedTorqueTrajectoryFollower()
+    #computedTorqueTrajectoryFollower()
+    computedTorqueTrajectoryFollowerC()

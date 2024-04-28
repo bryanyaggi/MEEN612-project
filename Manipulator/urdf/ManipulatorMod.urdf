@@ -12,6 +12,12 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
   </joint>
   -->
+  <material name="maroon">
+    <color rgba="0.5 0.0 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
   <link
     name="base_link">
     <inertial>
@@ -37,9 +43,7 @@
           filename="package://Manipulator/meshes/base_link.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="grey">
       </material>
     </visual>
     <collision>
@@ -77,9 +81,7 @@
           filename="package://Manipulator/meshes/link1.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="maroon">
       </material>
     </visual>
     <collision>
@@ -133,9 +135,7 @@
           filename="package://Manipulator/meshes/link2.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="grey">
       </material>
     </visual>
     <collision>
@@ -189,9 +189,7 @@
           filename="package://Manipulator/meshes/link3.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="maroon">
       </material>
     </visual>
     <collision>
@@ -245,9 +243,7 @@
           filename="package://Manipulator/meshes/link4.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="grey">
       </material>
     </visual>
     <collision>
@@ -301,9 +297,7 @@
           filename="package://Manipulator/meshes/link5.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="maroon">
       </material>
     </visual>
     <collision>
@@ -357,9 +351,7 @@
           filename="package://Manipulator/meshes/link6.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="grey">
       </material>
     </visual>
     <collision>
@@ -413,9 +405,7 @@
           filename="package://Manipulator/meshes/link7.STL" />
       </geometry>
       <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
+        name="maroon">
       </material>
     </visual>
     <collision>
