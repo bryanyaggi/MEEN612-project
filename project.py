@@ -6,7 +6,6 @@ import pybullet as p
 import pybullet_data
 import roboticstoolbox as rtb
 from spatialmath import SE3, SO3
-from spatialmath.base import r2q, rotz
 import time
 
 import unittest
@@ -24,20 +23,27 @@ PyBullet and SciPy use scalar-last format: (x, y, z, w)
 
 SIM_FREQUENCY = 240 # Hz
 
-def configureEnvironment(gravityDown=True):
+def setEarthGravity():
+    p.setGravity(0, 0, -9.81)
+
+def configureEnvironment():
     p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0) # hide panes
     cameraSpecs = p.getDebugVisualizerCamera()
     p.resetDebugVisualizerCamera(cameraDistance=1.0, cameraYaw=cameraSpecs[-4], cameraPitch=cameraSpecs[-3],
             cameraTargetPosition=cameraSpecs[-1]) # zoom in
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.loadURDF('plane.urdf')
-    p.setGravity(0, 0, -9.81)
-    if not gravityDown:
-        p.setGravity(0, 0, 9.81)
+    setEarthGravity()
 
 class Robot:
     def __init__(self):
         self.urdf = 'Manipulator/urdf/ManipulatorMod.urdf'
+        p.connect(p.GUI)
+        self.loadRobot()
+        configureEnvironment()
+
+    def __del__(self):
+        p.disconnect()
 
     def loadRobot(self):
         self.id = p.loadURDF(self.urdf, useFixedBase=True)
@@ -56,19 +62,20 @@ class Robot:
 
     def flop(self, gravityDown=True):
         if gravityDown:
-            p.connect(p.GUI, options='--mp4=downflop_bullet.mp4')
+            logId = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, 'downflop_bullet.mp4')
         else:
-            p.connect(p.GUI, options='--mp4=upflop_bullet.mp4')
-        configureEnvironment(gravityDown)
-        self.loadRobot()
+            p.setGravity(0, 0, 9.81)
+            logId = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, 'upflop_bullet.mp4')
         self.setInitialConfiguration()
 
         time.sleep(5) # initial delay
         for i in range(1000):
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
-        
-        p.disconnect()
+
+        p.stopStateLogging(logId)
+        if not gravityDown:
+            setEarthGravity()
 
     def getJointStates(self):
         '''
@@ -91,9 +98,6 @@ class Robot:
     def pidPositionRegulator(self, targetJoint=None, targetCartesian=None):
         '''
         '''
-        p.connect(p.GUI)
-        configureEnvironment()
-        self.loadRobot()
         self.setInitialConfiguration()
 
         P = np.diag([10, 10, 5, 5, 1, 1, 1])
@@ -115,17 +119,13 @@ class Robot:
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
-        p.disconnect()
-
-    def computedTorquePositionRegulator(self, targetJoint=None, targetCartesian=None, useCartesianOrientation=False):
+    def computedTorquePositionRegulator(self, targetJoint=None, targetCartesian=None, useCartesianOrientation=False,
+            timeLimit=None):
         '''
         targetJoint is list of joint angles
         targetJoint is SE3 transform
         useCartesianOrientation indicates whether Cartesian orientation is required for inverse kinematics
         '''
-        p.connect(p.GUI)
-        configureEnvironment()
-        self.loadRobot()
         self.setInitialConfiguration()
         
         Kp = 100 * np.eye(self.n)
@@ -141,8 +141,9 @@ class Robot:
                 targetJoint = p.calculateInverseKinematics(self.id, self.n - 1, targetCartesian.t,
                         maxNumIterations=maxIterations)
 
-        achieved = False
-        while not achieved:
+        t = 0
+        condition = False
+        while not condition:
             qC, qdC = self.getJointStates()
             error = targetJoint - qC
             M = np.array(p.calculateMassMatrix(self.id, list(qC)))
@@ -154,8 +155,9 @@ class Robot:
             print(self.getEndPose()[0])
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
-
-        p.disconnect()
+            t += 1 / SIM_FREQUENCY
+            if timeLimit is not None and t > timeLimit:
+                condition = True
 
     def computedTorqueTrajectoryFollower(self, trajectoryJoint=None, trajectoryCartesian=None,
             useCartesianOrientation=False):
@@ -164,11 +166,6 @@ class Robot:
         trajectoryCartesian is a list of SE3 transforms
         useCartesianOrientation indicates whether Cartesian orientation is required for inverse kinematics
         '''
-        p.connect(p.GUI)
-        configureEnvironment()
-        self.loadRobot()
-        #self.setInitialConfiguration()
-        
         if trajectoryJoint is None and trajectoryCartesian is not None:
             cartesian = True
             steps = len(trajectoryCartesian)
@@ -243,52 +240,10 @@ class Robot:
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
-        p.disconnect()
-
-def flopDown():
-    robot = Robot()
-    robot.flop()
-
-def flopUp():
-    robot = Robot()
-    robot.flop(False)
-
 def pidPositionRegulator():
     robot = Robot()
     angle = 20 * math.pi / 180
     robot.pidPositionRegulator(targetJoint=np.ones(7) * angle)
-
-def computedTorquePositionRegulator():
-    robot = Robot()
-    #robot.computedTorquePositionRegulator(targetJoint=np.ones(7) * angle)
-    T = SE3(0, 0, 0.2) * SE3.Rx(math.pi / 2)
-    robot.computedTorquePositionRegulator(targetCartesian=T, useCartesianOrientation=True)
-
-def computedTorqueTrajectoryFollower():
-    robot = Robot()
-    initialAngle = 10 * math.pi / 180
-    finalAngle = 45 * math.pi / 180
-    q0 = np.ones(7) * initialAngle
-    qf = np.ones(7) * finalAngle
-    duration = 10
-    t = np.linspace(0, duration, duration * SIM_FREQUENCY)
-    trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
-    robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
-
-def computedTorqueTrajectoryFollowerC():
-    robot = Robot()
-    T0 = SE3(-0.2, -0.2, 0.2) * SE3.Rx(math.pi / 2)
-    Tf = SE3(0.2, -0.2, 0.2) * SE3.Rx(math.pi / 2)
-    duration = 10
-    t = np.linspace(0, duration, duration * SIM_FREQUENCY)
-    trajectory = rtb.tools.trajectory.ctraj(T0, Tf, t)
-    #print(trajectory)
-    robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
-    #quat = r2q(trajectory[0].R)
-    #print(T0.R)
-    #quat = Rotation.from_matrix(Tf.R).as_quat()
-    #print(quat)
-    #robot.computedTorquePositionRegulator(targetCartesian=(trajectory[-1].t, quat))
 
 def pentagramTrajectoryFollower():
     robot = Robot()
@@ -300,19 +255,39 @@ def pentagramTrajectoryFollower():
     robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
 
 class Test(unittest.TestCase):
-    def testQuaternionConversion(self):
-        angle = 30 * math.pi / 180
-        #R = SO3.Rz(angle)
-        R = rotz(angle)
-        print(R)
-        q = r2q(R)
-        print(q)
+    @classmethod
+    def setUpClass(cls):
+        cls.robot = Robot()
+
+    def testFlop(self):
+        self.robot.flop()
+        self.robot.flop(False)
+
+    def testComputedTorquePositionRegulator(self):
+        # Joint
+        angle = 20 * math.pi / 180
+        self.robot.computedTorquePositionRegulator(targetJoint=np.ones(7) * angle, timeLimit=10)
+        
+        # Cartesian
+        T = SE3(0, 0, 0.2) * SE3.Rx(math.pi / 2)
+        self.robot.computedTorquePositionRegulator(targetCartesian=T, useCartesianOrientation=True, timeLimit=10)
+
+    def testComputedTorqueTrajectoryFollower(self):
+        # Joint
+        initialAngle = 10 * math.pi / 180
+        finalAngle = 45 * math.pi / 180
+        q0 = np.ones(7) * initialAngle
+        qf = np.ones(7) * finalAngle
+        duration = 10
+        t = np.linspace(0, duration, duration * SIM_FREQUENCY)
+        trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
+        self.robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
+
+        # Cartesian
+        poses = getVertexPoses(getPentagramVertices(center=(0, .3), radius=0.1), normalAxis=0, planeOffset=.3)
+        trajectory = getSegmentedTrajectory(poses)
+        
+        self.robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
 
 if __name__ == '__main__':
-    #flopDown()
-    #flopUp()
-    #pidPositionRegulator()
-    #computedTorquePositionRegulator()
-    #computedTorqueTrajectoryFollower()
-    #computedTorqueTrajectoryFollowerC()
-    pentagramTrajectoryFollower()
+    unittest.main()
