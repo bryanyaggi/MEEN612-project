@@ -12,6 +12,8 @@ import time
 import unittest
 from scipy.spatial.transform import Rotation
 
+from tools import *
+
 '''
 Notes
 
@@ -165,17 +167,21 @@ class Robot:
         p.connect(p.GUI)
         configureEnvironment()
         self.loadRobot()
+        #self.setInitialConfiguration()
         
         if trajectoryJoint is None and trajectoryCartesian is not None:
             cartesian = True
             steps = len(trajectoryCartesian)
             # Set end effector at start
+            maxIterations = 1000
             if useCartesianOrientation:
                 quat = Rotation.from_matrix(trajectoryCartesian[0].R).as_quat()
-                qPrev = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[0].t, quat)
+                qPrev = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[0].t, quat,
+                        maxNumIterations=maxIterations)
             else:
-                qPrev = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[0].t)
-            #qPrev = np.array(qPrev)
+                qPrev = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[0].t,
+                        maxNumIterations=maxIterations)
+            maxIterations = 100
             for i in range(self.n):
                 p.resetJointState(self.id, i, targetValue=qPrev[i])
             qT = np.zeros(self.n)
@@ -191,6 +197,7 @@ class Robot:
         Kp = 100 * np.eye(self.n)
         Kv = 2 * np.sqrt(Kp) # critical damping
 
+        time.sleep(5) # pause
         for i in range(steps):
             qC, qdC = self.getJointStates()
             if not cartesian:
@@ -200,9 +207,11 @@ class Robot:
             else:
                 if useCartesianOrientation:
                     quat = Rotation.from_matrix(trajectoryCartesian[i].R).as_quat()
-                    qT[:] = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i].t, quat)
+                    qT[:] = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i].t, quat,
+                            maxNumIterations=maxIterations)
                 else:
-                    qT[:] = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i].t)
+                    qT[:] = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i].t,
+                            maxNumIterations=maxIterations)
                 # Calculate derivatives using finite difference
                 if i == 0:
                     # use forward difference
@@ -225,7 +234,7 @@ class Robot:
                 ed = qdT - qdC
 
             #print(e)
-            print(self.getEndPose()[0])
+            #print(self.getEndPose()[0])
             M = np.array(p.calculateMassMatrix(self.id, list(qC)))
             N = np.array(p.calculateInverseDynamics(self.id, list(qC), list(qdC), [0.] * self.n)) # sum of Coriolis and
             # gravity terms
@@ -281,6 +290,15 @@ def computedTorqueTrajectoryFollowerC():
     #print(quat)
     #robot.computedTorquePositionRegulator(targetCartesian=(trajectory[-1].t, quat))
 
+def pentagramTrajectoryFollower():
+    robot = Robot()
+    poses = getVertexPoses(getPentagramVertices(center=(0, .3), radius=0.1), normalAxis=0, planeOffset=.3)
+    trajectory = getSegmentedTrajectory(poses)
+
+    print(trajectory[0])
+    
+    robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
+
 class Test(unittest.TestCase):
     def testQuaternionConversion(self):
         angle = 30 * math.pi / 180
@@ -296,4 +314,5 @@ if __name__ == '__main__':
     #pidPositionRegulator()
     #computedTorquePositionRegulator()
     #computedTorqueTrajectoryFollower()
-    computedTorqueTrajectoryFollowerC()
+    #computedTorqueTrajectoryFollowerC()
+    pentagramTrajectoryFollower()
