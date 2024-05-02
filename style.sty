@@ -1,0 +1,43 @@
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{fancyhdr} % fancy header
+\usepackage{caption}
+\usepackage{mathtools}
+
+\setlength\parindent{0pt} % no indent
+\setlength\parskip{0em} % no line
+\frenchspacing % one space after periods
+\pagestyle{fancy}
+\cfoot{\thepage}
+\renewcommand{\footrulewidth}{0.4pt} % footer
+
+\newcommand{\p}{\prescript}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\setlistdepth{6}
+\setlist[itemize,1]{label=$\bullet$}
+\setlist[itemize,2]{label=$\star$}
+\setlist[itemize,3]{label=$+$}
+\setlist[itemize,4]{label=$*$}
+\setlist[itemize,5]{label=$-$}
+\setlist[itemize,6]{label=$-$}
+\renewlist{itemize}{itemize}{6}
+
+% Environment for answers
+\newenvironment{answer}
+  {\color{blue}}
+  {}
+
+% Shortcuts for itemize
+\let\bi\itemize
+\let\ei\enditemize
+\let\i\item
