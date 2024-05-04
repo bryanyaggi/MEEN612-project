@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  ros:
+    image: osrf/ros:noetic-desktop-full
+    environment:
+      - DISPLAY
+      - XAUTHORITY
+    volumes:
+      - ..:/project
+    working_dir: /project
+    privileged: true
+    network_mode: host
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["bash"]

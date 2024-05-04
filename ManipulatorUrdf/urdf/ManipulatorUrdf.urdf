@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="ManipulatorUrdf">
+  <material name="maroon">
+    <color rgba="0.5 0.0 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-1.22557526943779E-08 1.22018958084312E-08 0.0092810773127755"
+        rpy="0 0 0" />
+      <mass
+        value="0.128593564789838" />
+      <inertia
+        ixx="7.45536846359304E-05"
+        ixy="6.46650347197829E-13"
+        ixz="-5.32544392988639E-12"
+        iyy="7.45536877822406E-05"
+        iyz="-6.57767819984515E-11"
+        izz="0.000137966503510752" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="grey">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link1">
+    <inertial>
+      <origin
+        xyz="-1.85892788255806E-08 0.00775841135748858 -0.0323463053242845"
+        rpy="0 0 0" />
+      <mass
+        value="0.123121051172828" />
+      <inertia
+        ixx="0.000126849219231024"
+        ixy="-6.45135493896353E-12"
+        ixz="5.33608551744657E-11"
+        iyy="0.000131362281302474"
+        iyz="-2.00145092206431E-05"
+        izz="3.73736976606538E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link1.STL" />
+      </geometry>
+      <material
+        name="maroon">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 0.10319"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link2">
+    <inertial>
+      <origin
+        xyz="-1.68476417454727E-08 0.0317343543085794 0.00745949851290703"
+        rpy="0 0 0" />
+      <mass
+        value="0.125495294944391" />
+      <inertia
+        ixx="0.000128102613852571"
+        ixy="-5.22874941598043E-11"
+        ixz="2.33703270569435E-11"
+        iyy="3.80907213341547E-05"
+        iyz="1.996738147207E-05"
+        izz="0.000131914555403081" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link2.STL" />
+      </geometry>
+      <material
+        name="grey">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint2"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link1" />
+    <child
+      link="link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link3">
+    <inertial>
+      <origin
+        xyz="-1.23437792442106E-08 0.00885187226136737 -0.0593498418344666"
+        rpy="0 0 0" />
+      <mass
+        value="0.162649767092968" />
+      <inertia
+        ixx="0.000384901372328097"
+        ixy="4.07977785051178E-13"
+        ixz="-6.61204349892496E-11"
+        iyy="0.000394315089859218"
+        iyz="-3.59136506465118E-05"
+        izz="4.68839643301925E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link3.STL" />
+      </geometry>
+      <material
+        name="maroon">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint3"
+    type="revolute">
+    <origin
+      xyz="0 0.20479 0"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="link2" />
+    <child
+      link="link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link4">
+    <inertial>
+      <origin
+        xyz="-2.23906566844437E-08 0.0317343152974587 0.00745949851290702"
+        rpy="0 0 0" />
+      <mass
+        value="0.125495294944391" />
+      <inertia
+        ixx="0.000128102613982611"
+        ixy="-5.19540681069413E-11"
+        ixz="-4.06975266434054E-11"
+        iyy="3.80907212041146E-05"
+        iyz="1.99672577369089E-05"
+        izz="0.00013191455540308" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link4.STL" />
+      </geometry>
+      <material
+        name="grey">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint4"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="link3" />
+    <child
+      link="link4" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link5">
+    <inertial>
+      <origin
+        xyz="-1.47136134657301E-09 0.00885185273884695 -0.059349841825483"
+        rpy="0 0 0" />
+      <mass
+        value="0.162649767077565" />
+      <inertia
+        ixx="0.000384901369108547"
+        ixy="5.87523367619801E-13"
+        ixz="-3.11948432407316E-11"
+        iyy="0.000394315093078619"
+        iyz="-3.59137084063457E-05"
+        izz="4.68839643301035E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link5.STL" />
+      </geometry>
+      <material
+        name="maroon">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint5"
+    type="revolute">
+    <origin
+      xyz="0 0.2047875 0"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="link4" />
+    <child
+      link="link5" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link6">
+    <inertial>
+      <origin
+        xyz="8.84933874689691E-10 0.0317343149617446 0.00745949851290702"
+        rpy="0 0 0" />
+      <mass
+        value="0.125495294944391" />
+      <inertia
+        ixx="0.000128102615380365"
+        ixy="-5.46457686054436E-11"
+        ixz="2.70800504357616E-11"
+        iyy="3.80907198063605E-05"
+        iyz="1.99672602664282E-05"
+        izz="0.000131914555403081" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link6.STL" />
+      </geometry>
+      <material
+        name="grey">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint6"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="link5" />
+    <child
+      link="link6" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+  <link
+    name="link7">
+    <inertial>
+      <origin
+        xyz="5.87774322886357E-08 5.34790418483191E-09 -0.0133863430450704"
+        rpy="0 0 0" />
+      <mass
+        value="0.0477760977622199" />
+      <inertia
+        ixx="1.03742535103201E-05"
+        ixy="-1.05535573516503E-12"
+        ixz="6.27195878369039E-11"
+        iyy="1.03742502286753E-05"
+        iyz="-3.28525526936077E-11"
+        izz="1.48894457745127E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link7.STL" />
+      </geometry>
+      <material
+        name="maroon">
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://ManipulatorUrdf/meshes/link7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint7"
+    type="revolute">
+    <origin
+      xyz="0 0.1031875 0"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="link6" />
+    <child
+      link="link7" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="100"
+      velocity="100" />
+  </joint>
+</robot>

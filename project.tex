@@ -50,13 +50,13 @@
   \hline
   Joint $i$ & $\alpha_{i-1}$ & $a_{i-1}$ & $d_i$ & $\theta_i$ \\
   \hline
-  1 & $0^\circ$ & 0 & $l_1 + b$ & $q_1$ \\
-  2 & $90^\circ$ & $l_2$ & 0 & $q_2$ \\
-  3 & $-90^\circ$ & 0 & $l_2 + b$ & $q_3$ \\
-  4 & $90^\circ$ & $l_3$ & 0 & $q_4$ \\
-  5 & $-90^\circ$ & 0 & $l_2 + b$ & $q_5$ \\
-  6 & $90^\circ$ & $l_3$ & 0 & $q_6$ \\
-  7 & $-90^\circ$ & 0 & $l_1 + l_2 + b$ & $q_7$ \\
+  1 & $0^\circ$ & 0 & $l_1 + b + l_2$ & $q_1$ \\
+  2 & $90^\circ$ & 0 & 0 & $q_2$ \\
+  3 & $-90^\circ$ & 0 & $l_2 + b + l_3$ & $q_3$ \\
+  4 & $90^\circ$ & 0 & 0 & $q_4$ \\
+  5 & $-90^\circ$ & 0 & $l_2 + b + l_3$ & $q_5$ \\
+  6 & $90^\circ$ & 0 & 0 & $q_6$ \\
+  7 & $-90^\circ$ & 0 & $l_2 + b + l_1$ & $q_7$ \\
   \hline
 \end{tabular}
 \end{center}
@@ -66,50 +66,39 @@ where $b = \frac{1}{16}"$ is the plain bearing flange thickness, $l_1 = 1"$, $l_
   \p{0}{1}T &= \begin{bmatrix}
     cq_1 & -sq_1 & 0 & 0 \\
     sq_1 & cq_1 & 0 & 0 \\
-    0 & 0 & 1 & l_1 + b \\
+    0 & 0 & 1 & l_1 + b + l_2 \\
     0 & 0 & 0 & 1
   \end{bmatrix} = \begin{bmatrix}
     cq_1 & -sq_1 & 0 & 0 \\
     sq_1 & cq_1 & 0 & 0 \\
-    0 & 0 & 1 & 1.0625 \\
+    0 & 0 & 1 & 4.0625 \\
     0 & 0 & 0 & 1
   \end{bmatrix} \\
-  \p{1}{2}T &= \begin{bmatrix}
-    cq_2 & -sq_2 & 0 & l_2 \\
+  \p{1}{2}T = \p{3}{4}T = \p{5}{6}T &= \begin{bmatrix}
+    cq & -sq & 0 & 0 \\
     0 & 0 & -1 & 0 \\
-    sq_2 & cq_2 & 0 & 0 \\
+    sq & cq & 0 & 0 \\
     0 & 0 & 0 & 1
   \end{bmatrix} = \begin{bmatrix}
-    cq_2 & -sq_2 & 0 & 3 \\
+    cq & -sq & 0 & 0 \\
     0 & 0 & -1 & 0 \\
-    sq_2 & cq_2 & 0 & 0 \\
+    sq & cq & 0 & 0 \\
     0 & 0 & 0 & 1
   \end{bmatrix} \\
   \p{2}{3}T = \p{4}{5}T &= \begin{bmatrix}
     cq & -sq & 0 & 0 \\
-    0 & 0 & 1 & l_2 + b \\
+    0 & 0 & 1 & l_2 + b + l_3 \\
     -sq & -cq & 0 & 0 \\
     0 & 0 & 0 & 1
   \end{bmatrix} = \begin{bmatrix}
     cq & -sq & 0 & 0 \\
-    0 & 0 & 1 & 3.0625 \\
+    0 & 0 & 1 & 8.0625 \\
     -sq & -cq & 0 & 0 \\
-    0 & 0 & 0 & 1
-  \end{bmatrix} \\
-  \p{3}{4}T = \p{5}{6}T &= \begin{bmatrix}
-    cq & -sq & 0 & l_3 \\
-    0 & 0 & -1 & 0 \\
-    sq & cq & 0 & 0 \\
-    0 & 0 & 0 & 1
-  \end{bmatrix} = \begin{bmatrix}
-    cq & -sq & 0 & 5 \\
-    0 & 0 & -1 & 0 \\
-    sq & cq & 0 & 0 \\
     0 & 0 & 0 & 1
   \end{bmatrix} \\
   \p{6}{7}T &= \begin{bmatrix}
     cq_7 & -sq_7 & 0 & 0 \\
-    0 & 0 & 1 & l_1 + l_2 + b \\
+    0 & 0 & 1 & l_2 + b + l_1 \\
     -sq_7 & -cq_7 & 0 & 0 \\
     0 & 0 & 0 & 1
   \end{bmatrix} = \begin{bmatrix}

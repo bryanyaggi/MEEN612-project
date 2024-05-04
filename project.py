@@ -37,7 +37,8 @@ def configureEnvironment():
 
 class Robot:
     def __init__(self):
-        self.urdf = 'Manipulator/urdf/ManipulatorMod.urdf'
+        #self.urdf = 'Manipulator/urdf/ManipulatorMod.urdf'
+        self.urdf = 'ManipulatorUrdf/urdf/ManipulatorUrdf.urdf'
         p.connect(p.GUI)
         self.loadRobot()
         configureEnvironment()
