@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.27)  3 MAY 2024 22:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.27)  4 MAY 2024 03:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -891,42 +891,37 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 File: counter1.jpg Graphic file (type jpg)
 <use counter1.jpg>
 Package pdftex.def Info: counter1.jpg  used on input line 28.
-(pdftex.def)             Requested size: 117.43875pt x 156.58344pt.
+(pdftex.def)             Requested size: 140.92793pt x 187.90013pt.
 <counter2.jpg, id=20, 728.4816pt x 971.3088pt>
 File: counter2.jpg Graphic file (type jpg)
 <use counter2.jpg>
 Package pdftex.def Info: counter2.jpg  used on input line 29.
-(pdftex.def)             Requested size: 117.43875pt x 156.58344pt.
+(pdftex.def)             Requested size: 140.92793pt x 187.90013pt.
 <ric1.jpg, id=21, 728.4816pt x 971.3088pt>
 File: ric1.jpg Graphic file (type jpg)
 <use ric1.jpg>
 Package pdftex.def Info: ric1.jpg  used on input line 30.
-(pdftex.def)             Requested size: 117.43875pt x 156.58344pt.
-<assembly.png, id=22, 288.3272pt x 909.3975pt>
-File: assembly.png Graphic file (type png)
-<use assembly.png>
-Package pdftex.def Info: assembly.png  used on input line 43.
-(pdftex.def)             Requested size: 74.46614pt x 234.8775pt.
-<frames.png, id=24, 272.51813pt x 913.16156pt>
-File: frames.png Graphic file (type png)
-<use frames.png>
-Package pdftex.def Info: frames.png  used on input line 44.
-(pdftex.def)             Requested size: 70.09207pt x 234.8775pt.
+(pdftex.def)             Requested size: 140.92793pt x 187.90013pt.
+<dhFrames.png, id=22, 233.1912pt x 291.0072pt>
+File: dhFrames.png Graphic file (type png)
+<use dhFrames.png>
+Package pdftex.def Info: dhFrames.png  used on input line 43.
+(pdftex.def)             Requested size: 188.21487pt x 234.8775pt.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
- <./counter1.jpg> <./counter2.jpg> <./ric1.jpg> <./assembly.png> <./frames.png>
-] [2] (./project.aux)
+ <./counter1.jpg> <./counter2.jpg> <./ric1.jpg>] [2 <./dhFrames.png>] [3] (./pr
+oject.aux)
 Package rerunfilecheck Info: File `project.out' has not changed.
 (rerunfilecheck)             Checksum: A6A634664EC8628A32B6100072D7965A;302.
  ) 
 Here is how much of TeX's memory you used:
- 28565 strings out of 478287
- 562668 string characters out of 5849289
- 825579 words of memory out of 5000000
- 46342 multiletter control sequences out of 15000+600000
+ 28556 strings out of 478287
+ 562523 string characters out of 5849289
+ 824578 words of memory out of 5000000
+ 46332 multiletter control sequences out of 15000+600000
  471563 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,14n,94p,438b,819s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 99i,14n,94p,438b,871s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
@@ -935,10 +930,10 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmsy7.pfb>
-Output written on project.pdf (2 pages, 7713811 bytes).
+Output written on project.pdf (3 pages, 7799219 bytes).
 PDF statistics:
- 87 PDF objects out of 1000 (max. 8388607)
- 59 compressed objects within 1 object stream
- 8 named destinations out of 1000 (max. 500000)
- 62 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 89 PDF objects out of 1000 (max. 8388607)
+ 62 compressed objects within 1 object stream
+ 9 named destinations out of 1000 (max. 500000)
+ 57 words of extra memory for PDF output out of 10000 (max. 10000000)
 

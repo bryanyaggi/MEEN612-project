@@ -27,6 +27,10 @@ def dh():
     pyplot.launch()
     pyplot.add(robot)
 
+def frames():
+    panda = rtb.models.URDF.Panda()
+    panda.plot([0, 0, 0, 0, 0, 0, 0], backend='pyplot', jointaxes=True, block=True)
+
 def forwardKinematics():
     # Symbolic
     b, l_1, l_2, l_3 = sym.symbols('b l_1 l_2 l_3')
@@ -47,5 +51,6 @@ def forwardKinematics():
         print(T_sym[i].subs([(b, 1/16), (l_1, 1), (l_2, 3), (l_3, 5)]))
 
 if __name__ == '__main__':
-    dh()
+    #dh()
+    frames()
     #forwardKinematics()

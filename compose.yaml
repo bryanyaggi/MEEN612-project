@@ -2,7 +2,12 @@ version: "3.8"
 
 services:
   ros:
-    image: osrf/ros:noetic-desktop-full
+    container_name: ros
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ros:latest
+    user: ubuntu
     environment:
       - DISPLAY
       - XAUTHORITY
