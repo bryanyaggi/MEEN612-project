@@ -1,6 +1,10 @@
 #! /usr/bin/env python3
 
 import math
+import matplotlib
+matplotlib.rcParams['figure.dpi'] = 200
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 import numpy as np
 import pybullet as p
 import pybullet_data
@@ -184,13 +188,16 @@ class Robot:
             fig, ax = plt.subplots()
             
             for i in range(es.shape[1]):
-                ax.plot(ts, es[:, i])
+                ax.plot(ts, es[:, i], linewidth=1.5, label='Joint %d' %i)
 
             ax.set_facecolor('white')
+            ax.set_xlabel('Time [s]')
+            ax.set_ylabel('Error [rad]')
+            ax.legend()
             plt.show()
 
     def computedTorqueTrajectoryFollower(self, trajectoryJoint=None, trajectoryCartesian=None,
-            useCartesianOrientation=False):
+            useCartesianOrientation=False, plot=False):
         '''
         trajectoryJoint is joint space trajectory of type rtb.tools.trajectory.Trajectory
         trajectoryCartesian is a list of SE3 transforms
@@ -220,6 +227,10 @@ class Robot:
             # Set end effector at start
             for i in range(self.n):
                 p.resetJointState(self.id, i, targetValue=trajectoryJoint.s[0][i])
+
+        if plot and cartesian:
+            pts = []
+            pas = []
         
         Kp = 100 * np.eye(self.n)
         Kv = 2 * np.sqrt(Kp) # critical damping
@@ -260,57 +271,32 @@ class Robot:
                 e = qT - qC
                 ed = qdT - qdC
 
-            #print(e)
-            #print(self.getEndPose()[0])
             M = np.array(p.calculateMassMatrix(self.id, list(qC)))
             N = np.array(p.calculateInverseDynamics(self.id, list(qC), list(qdC), [0.] * self.n)) # sum of Coriolis and
             # gravity terms
+            #print(e)
+            #print(self.getEndPose()[0])
+            if plot and cartesian:
+                pts.append(trajectoryCartesian[i].t)
+                pas.append(self.getEndPose()[0])
             torque = M @ (qddT + Kv @ ed + Kp @ e) + N
             p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
-    def plotFromLog(self, logFile):
-        with open(logFile, 'rb') as f:
-            keys = f.readline().decode('utf8').rstrip('\n').split(',')
-            fmt = f.readline().decode('utf8').rstrip('\n')
-            sz = struct.calcsize(fmt)
-            ncols = len(fmt)
-            data = f.read()
-        print(keys)
-        print(fmt)
+        if plot and cartesian:
+            pts = np.array(pts)
+            pas = np.array(pas)
+            print(pas.shape)
+            fig = plt.figure()
+            ax = fig.add_subplot(projection='3d')
+            
+            ax.plot3D(pts[:, 0], pts[:, 1], pts[:, 2], linewidth=1.5, label='Target')
+            ax.plot3D(pas[:, 0], pas[:, 1], pas[:, 2], linewidth=1.5, label='Actual')
 
-        chunks = data.split(b'\xaa\xbb')
-        log = []
-        for chunk in chunks:
-            if len(chunk) == sz:
-                values = struct.unpack(fmt, chunk)
-                record = []
-                for i in range(ncols):
-                    record.append(values[i])
-                log.append(record)
-        print(len(log))
-        log = np.array(log) # convert to numpy array
-        print(log.shape)
-
-        t = log[::2, 0] # time
-        q = log[::2, 17:25] # joint positions
-        e = q - q[-1, :] # joint error
-
-        print(t[0])
-        print(t[1])
-        print(t[2])
-        print(t[3])
-        print(q[0])
-        print(q[1])
-        print(q[2])
-        print(q[3])
-
-        fig, ax = plt.subplots()
-        for i in range(e.shape[1]):
-            ax.plot(t, e[:, i])
-
-        plt.show()
+            ax.set_facecolor('white')
+            ax.legend()
+            plt.show()
 
 def pidPositionRegulator():
     robot = Robot()
@@ -349,12 +335,13 @@ class Test(unittest.TestCase):
         self.robot.computedTorquePositionRegulator(targetCartesian=T, useCartesianOrientation=True, timeLimit=10)
 
     def testComputedTorquePositionRegulatorImpulse(self):
-        T = SE3(0, 0, 0.2) * SE3.Rx(math.pi / 2)
+        T = SE3(0, -0.2, 0.2) * SE3.Rx(math.pi / 2)
         self.robot.computedTorquePositionRegulator(targetCartesian=T, useCartesianOrientation=True, impulse=True,
                 timeLimit=10, plot=True)
 
     def testComputedTorqueTrajectoryFollower(self):
         # Joint
+        '''
         initialAngle = 10 * math.pi / 180
         finalAngle = 45 * math.pi / 180
         q0 = np.ones(7) * initialAngle
@@ -363,12 +350,14 @@ class Test(unittest.TestCase):
         t = np.linspace(0, duration, duration * SIM_FREQUENCY)
         trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
         self.robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
+        '''
 
         # Cartesian
         poses = getVertexPoses(getPentagramVertices(center=(0, .3), radius=0.1), normalAxis=0, planeOffset=.3)
         trajectory = getSegmentedTrajectory(poses)
         
-        self.robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
+        self.robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True,
+                plot=True)
 
 if __name__ == '__main__':
     unittest.main()
