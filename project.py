@@ -48,7 +48,6 @@ class Robot:
     Simulated manipulator in PyBullet
     '''
     def __init__(self):
-        #self.urdf = 'Manipulator/urdf/ManipulatorMod.urdf'
         self.urdf = 'ManipulatorUrdf/urdf/ManipulatorUrdf.urdf'
         p.connect(p.GUI)
         self.loadRobot()
@@ -137,7 +136,7 @@ class Robot:
             p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
             errorPrev = error
             print(error)
-            print(self.getEndPose()[0])
+            #print(self.getEndPose()[0])
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
@@ -158,10 +157,6 @@ class Robot:
         Kp = 100 * np.eye(self.n)
         Kv = 2 * np.sqrt(Kp) # critical damping
 
-        '''
-        if logFile is not None:
-            p.stopStateLogging(logId)
-        '''
         if targetJoint is None and targetCartesian is not None:
             maxIterations = 100
             if useCartesianOrientation:
@@ -197,7 +192,7 @@ class Robot:
             if impulse and not impulseApplied and t >= tImpulse:
                 print("Applying impulse")
                 impulseApplied = True
-                torque += 1000 * np.ones(self.n)
+                torque += 500 * np.ones(self.n)
             p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
@@ -245,7 +240,7 @@ class Robot:
             else:
                 qPrev = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[0].t,
                         maxNumIterations=maxIterations)
-            maxIterations = 100
+            maxIterations = 1000
             for i in range(self.n):
                 p.resetJointState(self.id, i, targetValue=qPrev[i])
             qT = np.zeros(self.n)
@@ -270,6 +265,7 @@ class Robot:
 
         time.sleep(5) # pause
         for i in range(steps):
+            #t = time.time()
             qC, qdC = self.getJointStates()
             if not cartesian:
                 e = trajectoryJoint.s[i] - qC
@@ -304,6 +300,7 @@ class Robot:
                 pas.append(self.getEndPose()[0])
             torque = M @ (qddT + Kv @ ed + Kp @ e) + N
             p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
+            #print(time.time() - t) # profile control code
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
@@ -321,9 +318,14 @@ class Robot:
             ax.plot3D(pas[:, 0], pas[:, 1], pas[:, 2], linewidth=1.5, label='Actual')
 
             ax.set_facecolor('white')
+            linespacing = 3
             ax.set_xlabel('x [meters]')
             ax.set_ylabel('y [meters]')
             ax.set_zlabel('z [meters]')
+            ax.set_aspect('equal')
+            ax.xaxis.labelpad = 20
+            ax.yaxis.labelpad = 20
+            ax.zaxis.labelpad = 20
             ax.legend()
             plt.show()
 
@@ -331,15 +333,6 @@ def pidPositionRegulator():
     robot = Robot()
     angle = 20 * math.pi / 180
     robot.pidPositionRegulator(targetJoint=np.ones(7) * angle)
-
-def pentagramTrajectoryFollower():
-    robot = Robot()
-    poses = getVertexPoses(getPentagramVertices(center=(0, .3), radius=0.1), normalAxis=0, planeOffset=.3)
-    trajectory = getSegmentedTrajectory(poses)
-
-    print(trajectory[0])
-    
-    robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True)
 
 class Test(unittest.TestCase):
     @classmethod
@@ -349,10 +342,6 @@ class Test(unittest.TestCase):
     def testFlop(self):
         self.robot.flop()
         self.robot.flop(False)
-
-    def testPlotFromLog(self):
-        self.testComputedTorquePositionRegulatorImpulse()
-        #self.robot.plotFromLog('impulse')
 
     def testComputedTorquePositionRegulator(self):
         # Joint
@@ -380,7 +369,6 @@ class Test(unittest.TestCase):
         self.robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
 
         # Cartesian
-        #poses = getVertexPoses(getPentagramVertices(center=(0, .2), radius=0.1), normalAxis=0, planeOffset=.3) # .008
         poses = getVertexPoses(getPentagramVertices(center=(0, .2), radius=0.1), normalAxis=0, planeOffset=.4) # .003
         trajectory = getSegmentedTrajectory(poses)
        

@@ -7,6 +7,13 @@
 
 \begin{document}
 
+\section{Links}
+
+\begin{itemize}
+  \item CAD: \href{https://drive.google.com/drive/folders/1lTKQVQmcOgyQq7JZ5-aucqZ-TNkLR1_J?usp=sharing}{Google Drive}
+  \item Code: \href{https://github.com/bryanyaggi/MEEN612-project}{GitHub}
+\end{itemize}
+
 \section{Mechanical Design}
 
 The manipulator is 7R spatial.
@@ -54,9 +61,9 @@ The manipulator is currently at my desk in the Research Integration Center (RIC)
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.3\linewidth]{counter1}
-  \includegraphics[width=0.3\linewidth]{counter2}
-  \includegraphics[width=0.3\linewidth]{ric1}
+  \includegraphics[width=0.3\linewidth]{media/counter1}
+  \includegraphics[width=0.3\linewidth]{media/counter2}
+  \includegraphics[width=0.3\linewidth]{media/ric1}
   \caption{Physical manipulator. Right image shows the manipulator at my desk at the RIC.}
 \end{figure}
 
@@ -72,7 +79,7 @@ Even and odd frames are shown in different subfigures for better visualization.
     
 \begin{figure}[h]
   \centering
-  \includegraphics[height=0.5\linewidth]{dhFrames}
+  \includegraphics[height=0.5\linewidth]{media/frames}
   \caption{Frame definitions. Middle subfigure shows even frames. Right subfigure shows odd frames.}
   \label{fig:frames}
 \end{figure}
@@ -156,7 +163,7 @@ where $q = q_i$ for $\p{i-1}{i}T$ and $s$ and $c$ represent $\sin$ and $\cos$, r
 A computed torque controller is implemented. \autoref{fig:ctd} is a diagram of the controller.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.75\linewidth]{computed_torque_diagram}
+  \includegraphics[width=0.75\linewidth]{media/computed_torque_diagram}
   \caption{Computed torque diagram.}
   \label{fig:ctd}
 \end{figure}
@@ -234,46 +241,52 @@ so I wanted to experiment with something else.
 I initially tried using the Python Robotic Toolbox developed by the lead developer of MATLAB's Robotics Toolbox,
 Peter Corke.
 While most of the functionality worked,
-the package was unusable because of a bug in getting the mass matrix from a robot imported via URDF.
+the package was unusable for control because of a bug in getting the mass matrix from a robot imported via URDF.
 \footnote{\href{https://github.com/petercorke/robotics-toolbox-python/issues/368}{GitHub issue}}
 There were other issues too, such as not being compatible with the latest release of SciPy.
 
+\subsubsection{Flopping}
+
 The following are links to the flopping videos:
 \begin{itemize}
-  \item \href{./downflop_bullet.mp4}{downflop\_bullet.mp4}
-  \item \href{./upflop_bullet.mp4}{upflop\_bullet.mp4}
+  \item \href{./media/downflop_bullet.mp4}{downflop\_bullet.mp4}
+  \item \href{./media/upflop_bullet.mp4}{upflop\_bullet.mp4}
 \end{itemize}
 The flopping videos were also created using MATLAB before the PyBullet simulation was working.
 
+\subsubsection{Impulse Response}
+
 \autoref{fig:impulse} is an impulse response plot created by perturbing each joint with a large torque at the 2 second
 mark while under position regulation control.
-The following is a link to the video of the scenario used for creating the plot: \href{./impulse.mp4}{impulse.mp4}.
+The following is a link to the video of the scenario used for creating the plot: \href{./media/impulse.mp4}{impulse.mp4}.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\linewidth]{impulse}
+  \includegraphics[width=0.75\linewidth]{media/impulse}
   \caption{Impulse response.}
   \label{fig:impulse}
 \end{figure}
 The non-zero error at the beginning of the plot is due to the initial movement of the manipulator to the desired
 Cartesian pose.
 
-\autoref{fig:ctyz} and \autoref{fig:ct} are plots of the manipulator's path when trying to draw a pentagram in a plane
+\subsubsection{Cartesian Trajectory Following}
+
+\autoref{fig:traj} is a plot of the manipulator's path when trying to draw a pentagram in a plane
 normal to the x-axis.
 The following is a link to the video of the scenario used for creating the plot:
-\href{./cartesian\_trajectory.mp4}{cartesian\_trajectory.mp4}
+\href{./media/cartesian\_trajectory.mp4}{cartesian\_trajectory.mp4}
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\linewidth]{cartesian_trajectory_yz}
-  \caption{Cartesian path viewed normal to plane of pentagram.}
-  \label{fig:ctyz}
-\end{figure}
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\linewidth]{cartesian_trajectory}
+  \includegraphics[width=0.75\linewidth]{media/cartesian_trajectory}
   \caption{Cartesian path in 3D.}
-  \label{fig:ct}
+  \label{fig:traj}
 \end{figure}
-In the figures, the target path is red and the actual path is blue.
-The error is much greater along the x-axis, but the maximum error is less than 3 mm.
+In the figure, the target path is red and the actual path is blue.
+On each control loop,
+the controller reads joint states,
+takes a new desired Cartesian end effector pose,
+uses numerical inverse kinematics to find the desired joint positions,
+uses finite difference to approximate the desired joint velocities and accelerations,
+and applies the computed torque control as shown in \autoref{fig:ctd}.
+This procedure was profiled and runs within the simulation step period on my laptop.
 
 \end{document}
