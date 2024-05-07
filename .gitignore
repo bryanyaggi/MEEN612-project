@@ -1,2 +1,7 @@
 # Python
 __pycache__
+
+# LaTeX
+*.aux
+*.log
+*.out

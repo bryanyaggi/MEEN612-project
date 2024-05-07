@@ -32,6 +32,9 @@ def setEarthGravity():
     p.setGravity(0, 0, -9.81)
 
 def configureEnvironment():
+    '''
+    Configure camera, add ground plane, set gravity
+    '''
     p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0) # hide panes
     cameraSpecs = p.getDebugVisualizerCamera()
     p.resetDebugVisualizerCamera(cameraDistance=1.0, cameraYaw=cameraSpecs[-4], cameraPitch=cameraSpecs[-3],
@@ -41,6 +44,9 @@ def configureEnvironment():
     setEarthGravity()
 
 class Robot:
+    '''
+    Simulated manipulator in PyBullet
+    '''
     def __init__(self):
         #self.urdf = 'Manipulator/urdf/ManipulatorMod.urdf'
         self.urdf = 'ManipulatorUrdf/urdf/ManipulatorUrdf.urdf'
@@ -67,6 +73,11 @@ class Robot:
             p.resetJointState(self.id, i, targetValue=angle)
 
     def flop(self, gravityDown=True):
+        '''
+        No joint control for model sanity check
+
+        gravityDown is whether gravity vector is down
+        '''
         if gravityDown:
             logId = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, 'downflop_bullet.mp4')
         else:
@@ -103,6 +114,11 @@ class Robot:
 
     def pidPositionRegulator(self, targetJoint=None, targetCartesian=None):
         '''
+        TODO: Complete
+        Minimally-tuned PD controller. No added reflected intertia.
+        
+        targetJoint is list of joint angles
+        targetJoint is SE3 transform, orientation not considered
         '''
         self.setInitialConfiguration()
 
@@ -110,7 +126,7 @@ class Robot:
         D = 2 * np.sqrt(P)
         
         if targetJoint is None and targetCartesian is not None:
-            targetJoint = p.calculateInverseKinematics(self.id, self.n - 1, targetCartesian)
+            targetJoint = p.calculateInverseKinematics(self.id, self.n - 1, targetCartesian.t)
         
         errorPrev = 0
         achieved = False
@@ -128,9 +144,14 @@ class Robot:
     def computedTorquePositionRegulator(self, targetJoint=None, targetCartesian=None, useCartesianOrientation=False,
             impulse=False, timeLimit=None, plot=False):
         '''
+        Computed torque position regulator
+
         targetJoint is list of joint angles
         targetJoint is SE3 transform
         useCartesianOrientation indicates whether Cartesian orientation is required for inverse kinematics
+        impulse is whether to apply an impulse
+        timeLimit is the duration to run the simulation
+        plot is whether to create a plot
         '''
         self.setInitialConfiguration()
         
@@ -159,6 +180,8 @@ class Robot:
         tImpulse = 2
         impulseApplied = False
         condition = False
+        if impulse:
+            logId = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, 'impulse.mp4')
         while not condition:
             qC, qdC = self.getJointStates()
             error = targetJoint - qC
@@ -181,6 +204,9 @@ class Robot:
             t += 1 / SIM_FREQUENCY
             if timeLimit is not None and t > timeLimit:
                 condition = True
+        
+        if impulse:
+            p.stopStateLogging(logId)
 
         if plot:
             es = np.array(es)
@@ -197,11 +223,15 @@ class Robot:
             plt.show()
 
     def computedTorqueTrajectoryFollower(self, trajectoryJoint=None, trajectoryCartesian=None,
-            useCartesianOrientation=False, plot=False):
+            useCartesianOrientation=False, plot=False, videoFile=None):
         '''
+        Computed torque trajectory follower
+
         trajectoryJoint is joint space trajectory of type rtb.tools.trajectory.Trajectory
         trajectoryCartesian is a list of SE3 transforms
         useCartesianOrientation indicates whether Cartesian orientation is required for inverse kinematics
+        plot is whether to create a plot -- only supported for Cartesian trajectories
+        videoFile is a filename for creating a video
         '''
         if trajectoryJoint is None and trajectoryCartesian is not None:
             cartesian = True
@@ -234,6 +264,9 @@ class Robot:
         
         Kp = 100 * np.eye(self.n)
         Kv = 2 * np.sqrt(Kp) # critical damping
+            
+        if videoFile is not None:
+            logId = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, videoFile)
 
         time.sleep(5) # pause
         for i in range(steps):
@@ -250,17 +283,7 @@ class Robot:
                 else:
                     qT[:] = p.calculateInverseKinematics(self.id, self.n - 1, trajectoryCartesian[i].t,
                             maxNumIterations=maxIterations)
-                # Calculate derivatives using finite difference
-                if i == 0:
-                    # use forward difference
-                    pass
-                elif i == steps - 1:
-                    # use backward difference
-                    pass
-                else:
-                    # use center difference
-                    pass
-                # forward difference
+                # Calculate derivatives using finite forward difference
                 qdT = (qT - qPrev) / (1 / SIM_FREQUENCY)
                 qddT = (qdT - qdPrev) / (1 / SIM_FREQUENCY)
 
@@ -284,6 +307,9 @@ class Robot:
             p.stepSimulation()
             time.sleep(1 / SIM_FREQUENCY)
 
+        if videoFile is not None:
+            p.stopStateLogging(logId)
+
         if plot and cartesian:
             pts = np.array(pts)
             pas = np.array(pas)
@@ -295,6 +321,9 @@ class Robot:
             ax.plot3D(pas[:, 0], pas[:, 1], pas[:, 2], linewidth=1.5, label='Actual')
 
             ax.set_facecolor('white')
+            ax.set_xlabel('x [meters]')
+            ax.set_ylabel('y [meters]')
+            ax.set_zlabel('z [meters]')
             ax.legend()
             plt.show()
 
@@ -341,7 +370,6 @@ class Test(unittest.TestCase):
 
     def testComputedTorqueTrajectoryFollower(self):
         # Joint
-        '''
         initialAngle = 10 * math.pi / 180
         finalAngle = 45 * math.pi / 180
         q0 = np.ones(7) * initialAngle
@@ -350,14 +378,14 @@ class Test(unittest.TestCase):
         t = np.linspace(0, duration, duration * SIM_FREQUENCY)
         trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
         self.robot.computedTorqueTrajectoryFollower(trajectoryJoint=trajectory)
-        '''
 
         # Cartesian
-        poses = getVertexPoses(getPentagramVertices(center=(0, .3), radius=0.1), normalAxis=0, planeOffset=.3)
+        #poses = getVertexPoses(getPentagramVertices(center=(0, .2), radius=0.1), normalAxis=0, planeOffset=.3) # .008
+        poses = getVertexPoses(getPentagramVertices(center=(0, .2), radius=0.1), normalAxis=0, planeOffset=.4) # .003
         trajectory = getSegmentedTrajectory(poses)
-        
+       
         self.robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True,
-                plot=True)
+                plot=True, videoFile='cartesian_trajectory.mp4')
 
 if __name__ == '__main__':
     unittest.main()
