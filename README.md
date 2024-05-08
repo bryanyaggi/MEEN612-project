@@ -11,8 +11,9 @@ add-in.
 
 ## Running PyBullet Simulation  
 1. Create Python virtual environment [optional]: `virtualenv venv`  
-2. Install dependencies: `pip install -r requirements.txt`  
-3. Run unit tests: `./project.py`  
+2. Activate virtual environment [optional]: `source venv/bin/activate`  
+3. Install dependencies: `pip install -r requirements.txt`  
+4. Run unit tests: `./project.py`  
 
 ## Running MATLAB Simulation Flop  
 1. Start MATLAB and add directory to path.  

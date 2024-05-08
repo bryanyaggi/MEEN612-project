@@ -329,6 +329,59 @@ class Robot:
             ax.legend()
             plt.show()
 
+    def adaptiveControl(self, trajectoryJoint):
+        '''
+        MRAC for adapting to joint friction
+        '''
+        steps = len(trajectoryJoint)
+        # Set end effector at start
+        for i in range(self.n):
+            p.resetJointState(self.id, i, targetValue=trajectoryJoint.s[0][i])
+        
+        Kp = 100 * np.eye(self.n)
+        Kv = 2 * np.sqrt(Kp) # critical damping
+
+        # Friction parameters
+        c = np.eye(self.n) * 0.1
+        v = np.eye(self.n) * 0 #0.01
+
+        # Adaptive control variables
+        phi = np.zeros(2 * self.n) # features
+        w = np.zeros((self.n, 2 * self.n)) # weights
+        for i in range(self.n):
+            w[i, i] = c[i, i]
+            w[i, self.n + i] = v[i, i]
+        qdPrev = np.zeros(self.n)
+
+        for i in range(steps):
+            qC, qdC = self.getJointStates()
+            qddC = (qdC - qdPrev) / (1 / SIM_FREQUENCY)
+            
+            e = trajectoryJoint.s[i] - qC
+            ed = trajectoryJoint.sd[i] - qdC
+            qddT = trajectoryJoint.sdd[i]
+            edd = qddT - qddC
+            #print(e)
+            #print(self.getEndPose()[0])
+
+            phi[:self.n] = np.sign(qdC)
+            phi[self.n:] = qdC
+            #print(phi)
+            
+            M = np.array(p.calculateMassMatrix(self.id, list(qC)))
+            N = np.array(p.calculateInverseDynamics(self.id, list(qC), list(qdC), [0.] * self.n)) # sum of Coriolis and
+            # gravity terms
+            torque = M @ (qddT + Kv @ ed + Kp @ e) + N
+            torqueFriction = c @ np.sign(qdC) + v @ qdC # simulate friction
+            torqueAdaptive = w @ phi # add adaptive control
+            torque = torque - torqueFriction + torqueAdaptive
+            p.setJointMotorControlArray(self.id, list(range(self.n)), p.TORQUE_CONTROL, forces=torque)
+            modelError = (edd + Kv @ ed + Kp @ e - np.linalg.inv(M) @ w @ phi)
+            print(modelError)
+            # update weights
+            p.stepSimulation()
+            time.sleep(1 / SIM_FREQUENCY)
+
 def pidPositionRegulator():
     robot = Robot()
     angle = 20 * math.pi / 180
@@ -374,6 +427,16 @@ class Test(unittest.TestCase):
        
         self.robot.computedTorqueTrajectoryFollower(trajectoryCartesian=trajectory, useCartesianOrientation=True,
                 plot=True, videoFile='cartesian_trajectory.mp4')
+
+    def testAdaptiveControl(self):
+        initialAngle = 10 * math.pi / 180
+        finalAngle = 45 * math.pi / 180
+        q0 = np.ones(7) * initialAngle
+        qf = np.ones(7) * finalAngle
+        duration = 10
+        t = np.linspace(0, duration, duration * SIM_FREQUENCY)
+        trajectory = rtb.tools.trajectory.jtraj(q0, qf, t)
+        self.robot.adaptiveControl(trajectoryJoint=trajectory)
 
 if __name__ == '__main__':
     unittest.main()
